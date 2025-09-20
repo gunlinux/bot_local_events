@@ -27,7 +27,7 @@ CHANNEL_TOKEN_FILE: str = os.environ.get('CHANNEL_TOKEN_FILE', 'channels_tokens.
 
 # paths
 COMMAND_DIR: str = os.environ.get('COMMAND_DIR', './commands/')
-scripts_path: str = 'local_events/scripts/'
+scripts_path: str = 'scripts/'
 
 
 # QUEUES
