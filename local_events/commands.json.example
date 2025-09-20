@@ -1,0 +1,50 @@
+[
+    {
+        "name": "#mouseoff",
+        "price": 50,
+        "command": "mouseoff_task_twitch.py",
+        "type": "donate"
+    },
+    {
+        "name": "#copy",
+        "price": 50,
+        "command": "copyoff.py",
+        "type": "donate"
+    },
+    {
+        "name": "#shutdown",
+        "price": 8888,
+        "command": "shutdown.py",
+        "type": "bycash"
+    },
+    {
+        "name": "flashback",
+        "price": 50,
+        "command": "flashback_task.py",
+        "type": "twitch"
+    },
+    {
+        "name": "help",
+        "price": 50,
+        "command": "pasha_task.py",
+        "type": "twitch"
+    },
+    {
+        "name": "mouseoff",
+        "price": 50,
+        "command": "mouseoff_task_twitch.py",
+        "type": "twitch"
+    },
+    {
+        "name": "gpt_sucks",
+        "price": 42,
+        "command": "gtp_task.py",
+        "type": "twitch"
+    },
+    {
+        "name": "forcevibecode",
+        "price": 666,
+        "command": "force_vibecode_task.py",
+        "type": "twitch"
+    }
+]

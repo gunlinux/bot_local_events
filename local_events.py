@@ -1,4 +1,6 @@
 import asyncio
+import pathlib
+import json
 import typing
 import logging
 
@@ -9,17 +11,25 @@ from requeue.rredis import RedisConnection
 from requeue.models import QueueMessage, QueueEvent
 
 from local_events import settings
-from local_events.commands import pay_commands  # pyright: ignore[reportMissingImports, reportUnknownVariableType]
 
 logger = logging.getLogger('local_events')
+DEFAULT_COMMAND_PATH = './local_events/commands.json'
 
 
 class CommandConfig:
     def __init__(
-        self, lcommands: list[dict[str, typing.Any]], currencices: dict[str, float]
+        self,
+        currencices: dict[str, float],
+        lcommands: list[dict[str, typing.Any]] | None = None,
+        config_path: str = DEFAULT_COMMAND_PATH,
     ) -> None:
-        self.commands: list[dict[str, typing.Any]] = lcommands
         self.currencices = currencices
+        if config_path and lcommands is None:
+            with pathlib.Path(config_path).open('r') as f:
+                self.commands = json.load(f)
+                print(self.commands)
+        if lcommands:
+            self.commands: list[dict[str, typing.Any]] = lcommands
 
     def _is_donate_by_message_and_price(
         self, command: dict[str, typing.Any], alert: QueueEvent
@@ -126,7 +136,7 @@ async def main() -> None:
     redis_url: str = settings.local_events_redis_url
     async with RedisConnection(redis_url) as redis_connection:
         queue: Queue = Queue(name=settings.LOCAL_EVENTS, connection=redis_connection)
-        command_config: CommandConfig = CommandConfig(pay_commands, settings.currencies)  # pyright: ignore[reportUnknownArgumentType]
+        command_config: CommandConfig = CommandConfig(settings.currencies)
 
         processor: CommandProcessor = CommandProcessor()
 
