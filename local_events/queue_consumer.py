@@ -27,9 +27,10 @@ class QueueConsumer:
             return
         logger.critical('cant find a command %s', event)
 
-    async def on_message(self, message: QueueMessage) -> QueueMessage | None:
+    async def on_message(self, message: QueueMessage) -> QueueMessage:
         event: QueueEvent = message.data
         logger.info('start to handle_event %s', event)
         event.recal_amount(currencies=settings.currencies)
         await self.handle_event(event)
+        message.finish()
         return message
