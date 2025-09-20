@@ -1,5 +1,4 @@
 import asyncio
-import logging
 
 from requeue.requeue import Queue
 from requeue.rredis import RedisConnection
@@ -8,8 +7,9 @@ from local_events import settings
 from local_events.command_config import CommandConfig
 from local_events.command_processor import CommandProcessor
 from local_events.queue_consumer import QueueConsumer
+from local_events.utils import logger_setup
 
-logger = logging.getLogger('local_events')
+logger = logger_setup(__name__)
 
 
 async def main() -> None:
