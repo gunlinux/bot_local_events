@@ -30,6 +30,7 @@ class CommandConfig:
     ) -> bool:
         return (
             command['name'] in alert.message
+            and alert.amount is not None
             and alert.amount > command['price']
             and command['type'] == 'donate'
             and alert.billing_system != 'TWITCH'

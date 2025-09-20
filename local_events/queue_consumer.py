@@ -32,4 +32,4 @@ class QueueConsumer:
         logger.info('start to handle_event %s', event)
         event.recal_amount(currencies=settings.currencies)
         await self.handle_event(event)
-        return None
+        return message
