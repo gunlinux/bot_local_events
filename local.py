@@ -23,7 +23,7 @@ async def main() -> None:
         local_events_consumer: QueueConsumer = QueueConsumer(
             command_config=command_config, processor=processor
         )
-        print('yam yam yam')
+        logger.info('yam yam yam')
         await queue.consumer(local_events_consumer.on_message)
 
 

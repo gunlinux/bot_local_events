@@ -36,6 +36,15 @@ class CommandConfig:
             and alert.billing_system != 'TWITCH'
         )
 
+    def _is_custom_reward(
+        self, command: dict[str, typing.Any], alert: QueueEvent
+    ) -> bool:
+        return (
+            alert.event_type == 'CUSTOM_REWARD'
+            and alert.event is not None
+            and alert.event.get('title', '') == command['name']
+        )
+
     def _is_command_by_price(
         self, command: dict[str, typing.Any], alert: QueueEvent
     ) -> bool:
@@ -59,6 +68,7 @@ class CommandConfig:
                 self._is_donate_by_message_and_price(command, alert)
                 or self._is_command_from_twitch(command, alert)
                 or self._is_command_by_price(command, alert)
+                or self._is_custom_reward(command, alert)
             ):
                 return command['command']
         return None
