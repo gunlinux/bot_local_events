@@ -3,20 +3,20 @@ name = "rebot"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = "==3.12"
 dependencies = [
-    "coredis>=4.22.0",
     "donationalertsapi>=2.0.2",
+    "faststream[rabbit]>=0.6.7",
     "marshmallow>=3.26.1",
     "marshmallow-enum>=1.5.1",
     "obs-websocket-py>=1.0",
     "pyright>=1.1.398",
     "python-dotenv>=1.0.1",
     "python-socketio>=5.11.4",
+    "requeue>=0.7.2",
     "sentry-sdk==0.10.2",
     "sqlmodel>=0.0.24",
     "twitchio>=2.10.0",
-    "requeue==3.0.0",
 ]
 
 [dependency-groups]
