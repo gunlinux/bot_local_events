@@ -5,6 +5,7 @@ from collections.abc import Callable, Mapping
 
 from faststream.rabbit import RabbitBroker
 from local_events.integrations.obs import ObsClient
+from local_events.integrations.sender import SenderClient
 from requeue.fstream.models import FQueueMessage, FQueueEvent
 from requeue.fstream.consumer import RabbitConsumer
 
@@ -78,12 +79,12 @@ class LocalConsumer:
         if message.event in EVENTS_TO_PROCESS:
             await self.process_event(message.data)
             return
-        logger.info('no reaseon to process %s', message)
 
 
 @dataclass
 class RewardRouter:
     obs_client: ObsClient
+    sender_client: SenderClient
 
     async def reward_router(self, event: TwitchRewardEvent) -> None:
         if not event.title:
@@ -95,13 +96,17 @@ class RewardRouter:
                 await usecases.FlashbackUsecase(obs_client=self.obs_client).execute()
             case 'gpt_sucks':
                 await usecases.GptsucksUsecase().execute()
+            case 'mouseoff':
+                await usecases.MouseoffUsecase(
+                    sender_client=self.sender_client
+                ).execute()
 
 
 async def main() -> None:
     broker = RabbitBroker(settings.rabbit_url, virtualhost=settings.rabbit_vhost)
     obs_client = ObsClient(password=settings.obs_password)
-
-    reward_router = RewardRouter(obs_client=obs_client)
+    sender_client = SenderClient(broker=broker)
+    reward_router = RewardRouter(obs_client=obs_client, sender_client=sender_client)
 
     handlers: Mapping[type, Callable] = {
         TwitchRewardEvent: reward_router.reward_router,
