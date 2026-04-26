@@ -100,6 +100,8 @@ class RewardRouter:
                 await usecases.MouseoffUsecase(
                     sender_client=self.sender_client
                 ).execute()
+            case 'help':
+                await usecases.HelpUsecase(obs_client=self.obs_client).execute()
 
 
 async def main() -> None:
