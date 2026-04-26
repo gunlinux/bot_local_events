@@ -2,14 +2,16 @@ import asyncio
 
 from dataclasses import dataclass
 from collections.abc import Callable, Mapping
+import typing
 
 from faststream.rabbit import RabbitBroker
-from local_events.integrations.obs import ObsClient
-from local_events.integrations.sender import SenderClient
 from requeue.fstream.models import FQueueMessage, FQueueEvent
 from requeue.fstream.consumer import RabbitConsumer
 
 from local_events import settings
+from local_events.services import ServiceProvider
+from local_events.services.obs import ObsService
+from local_events.services.sender import SenderService
 from local_events.utils import logger_setup
 from local_events import usecases
 
@@ -83,32 +85,36 @@ class LocalConsumer:
 
 @dataclass
 class RewardRouter:
-    obs_client: ObsClient
-    sender_client: SenderClient
-
     async def reward_router(self, event: TwitchRewardEvent) -> None:
         if not event.title:
             return
+        sender_service = typing.cast(
+            'SenderService', ServiceProvider.get('SenderService')
+        )
+        obs_service = typing.cast('ObsService', ServiceProvider.get('ObsService'))
 
         logger.critical('reward_router')
         match event.title:
             case 'flashback':
-                await usecases.FlashbackUsecase(obs_client=self.obs_client).execute()
+                await usecases.FlashbackUsecase(obs_client=obs_service).execute()
             case 'gpt_sucks':
                 await usecases.GptsucksUsecase().execute()
             case 'mouseoff':
-                await usecases.MouseoffUsecase(
-                    sender_client=self.sender_client
-                ).execute()
+                await usecases.MouseoffUsecase(sender_client=sender_service).execute()
             case 'help':
-                await usecases.HelpUsecase(obs_client=self.obs_client).execute()
+                await usecases.HelpUsecase(obs_client=obs_service).execute()
 
 
 async def main() -> None:
     broker = RabbitBroker(settings.rabbit_url, virtualhost=settings.rabbit_vhost)
-    obs_client = ObsClient(password=settings.obs_password)
-    sender_client = SenderClient(broker=broker)
-    reward_router = RewardRouter(obs_client=obs_client, sender_client=sender_client)
+
+    obs_client_service = ObsService(password=settings.obs_password)
+    ServiceProvider.register('ObsService', obs_client_service)
+
+    sender_service = SenderService(broker=broker)
+    ServiceProvider.register('SenderService', sender_service)
+
+    reward_router = RewardRouter()
 
     handlers: Mapping[type, Callable] = {
         TwitchRewardEvent: reward_router.reward_router,

@@ -1,9 +1,12 @@
 import typing
 import logging
+
 from obswebsocket import obsws, requests
 
+from local_events.services.base import BaseService
 
-class ObsClient:
+
+class ObsService(BaseService):
     def __init__(
         self,
         host: str = 'localhost',
