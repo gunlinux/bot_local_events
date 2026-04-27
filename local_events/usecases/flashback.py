@@ -1,7 +1,7 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from local_events.usecases.base import BaseUseCase
-from local_events.integrations.obs import ObsClient
+from local_events.services.obs import ObsService
 from local_events.utils import logger_setup
 
 logger = logger_setup(__name__)
@@ -9,8 +9,8 @@ logger = logger_setup(__name__)
 
 @dataclass
 class FlashbackUsecase(BaseUseCase):
+    obs_client: ObsService
     duration: int = 30
-    obs_client: ObsClient = field(default_factory=ObsClient)
 
     async def start(self) -> None:
         self.obs_client.connect()

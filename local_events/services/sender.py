@@ -1,8 +1,10 @@
 from faststream.rabbit import RabbitBroker
 from requeue.sender.sender import Sender
 
+from local_events.services.base import BaseService
 
-class SenderClient:
+
+class SenderService(BaseService):
     def __init__(
         self,
         broker: RabbitBroker | None = None,
