@@ -1,6 +1,6 @@
 version = 1
 revision = 3
-requires-python = "==3.12"
+requires-python = "==3.12.*"
 
 [[package]]
 name = "aio-pika"
@@ -482,6 +482,20 @@ wheels = [
 ]
 
 [[package]]
+name = "pydantic-settings"
+version = "2.14.1"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "pydantic" },
+    { name = "python-dotenv" },
+    { name = "typing-inspection" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/07/60/1d1e59c9c90d54591469ada7d268251f71c24bdb765f1a8a832cee8c6653/pydantic_settings-2.14.1.tar.gz", hash = "sha256:e874d3bec7e787b0c9958277956ed9b4dd5de6a80e162188fdaff7c5e26fd5fa", size = 235551, upload-time = "2026-05-08T13:40:06.542Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ae/8d/f1af3832f5e6eb13ba94ee809e72b8ecb5eef226d27ee0bef7d963d943c7/pydantic_settings-2.14.1-py3-none-any.whl", hash = "sha256:6e3c7edfd8277687cdc598f56e5cff0e9bfff0910a3749deaa8d4401c3a2b9de", size = 60964, upload-time = "2026-05-08T13:40:04.958Z" },
+]
+
+[[package]]
 name = "pygments"
 version = "2.19.2"
 source = { registry = "https://pypi.org/simple" }
@@ -576,10 +590,10 @@ dependencies = [
     { name = "marshmallow" },
     { name = "marshmallow-enum" },
     { name = "obs-websocket-py" },
+    { name = "pydantic-settings" },
     { name = "pyright" },
     { name = "python-dotenv" },
     { name = "python-socketio" },
-    { name = "requeue" },
     { name = "sentry-sdk" },
     { name = "sqlmodel" },
     { name = "twitchio" },
@@ -601,10 +615,10 @@ requires-dist = [
     { name = "marshmallow", specifier = ">=3.26.1" },
     { name = "marshmallow-enum", specifier = ">=1.5.1" },
     { name = "obs-websocket-py", specifier = ">=1.0" },
+    { name = "pydantic-settings", specifier = ">=2.14.1" },
     { name = "pyright", specifier = ">=1.1.398" },
     { name = "python-dotenv", specifier = ">=1.0.1" },
     { name = "python-socketio", specifier = ">=5.11.4" },
-    { name = "requeue", git = "https://github.com/gunlinux/requeue" },
     { name = "sentry-sdk", specifier = "==0.10.2" },
     { name = "sqlmodel", specifier = ">=0.0.24" },
     { name = "twitchio", specifier = ">=2.10.0" },
@@ -632,14 +646,6 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/c9/74/b3ff8e6c8446842c3f5c837e9c3dfcfe2018ea6ecef224c710c85ef728f4/requests-2.32.5.tar.gz", hash = "sha256:dbba0bac56e100853db0ea71b82b4dfd5fe2bf6d3754a8893c3af500cec7d7cf", size = 134517, upload-time = "2025-08-18T20:46:02.573Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1e/db/4254e3eabe8020b458f1a747140d32277ec7a271daf1d235b70dc0b4e6e3/requests-2.32.5-py3-none-any.whl", hash = "sha256:2462f94637a34fd532264295e186976db0f5d453d1cdd31473c85a6a161affb6", size = 64738, upload-time = "2025-08-18T20:46:00.542Z" },
-]
-
-[[package]]
-name = "requeue"
-version = "0.7.2"
-source = { git = "https://github.com/gunlinux/requeue#1c048cef0046af21152a9f754ea61f23fc329373" }
-dependencies = [
-    { name = "faststream" },
 ]
 
 [[package]]

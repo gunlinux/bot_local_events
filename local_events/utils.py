@@ -35,7 +35,7 @@ def logger_setup(name: str) -> logging.Logger:
             ],
         )
 
-    log_level_raw = os.getenv('LOG_LEVEL', None)
+    log_level_raw = os.getenv('LOG_LEVEL', str(logging.INFO))
     if log_level_raw and log_level_raw.isdigit():
         log_level = int(log_level_raw)
         if log_level not in (
