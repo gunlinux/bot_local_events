@@ -4,9 +4,10 @@ from dataclasses import dataclass
 from collections.abc import Callable, Mapping
 import typing
 
-from faststream.rabbit import RabbitBroker
-from requeue.fstream.models import FQueueMessage, FQueueEvent
-from requeue.fstream.consumer import RabbitConsumer
+from faststream import FastStream, AckPolicy
+from faststream.rabbit import RabbitBroker, RabbitQueue
+from faststream.rabbit.annotations import RabbitMessage
+from local_events.models import FQueueMessage, FQueueEvent
 
 from local_events import settings
 from local_events.services import ServiceProvider
@@ -62,7 +63,7 @@ class LocalConsumer:
     event_handler: EventHandler
 
     async def process_event(self, event: FQueueEvent) -> None:
-        logger.info('got event %s', event)
+        logger.critical('process_event: got event %s', event)
         if event.event_type == 'CUSTOM_REWARD':
             if new_event := (
                 TwitchRewardEvent(title=event.event.get('title', ''))
@@ -77,7 +78,7 @@ class LocalConsumer:
         logger.warning('cant get handler for %s', event)
 
     async def process(self, message: FQueueMessage) -> None:
-        logger.info('get_mesage %s', message)
+        logger.info('get_message %s', message)
         if message.event in EVENTS_TO_PROCESS:
             await self.process_event(message.data)
             return
@@ -86,6 +87,7 @@ class LocalConsumer:
 @dataclass
 class RewardRouter:
     async def reward_router(self, event: TwitchRewardEvent) -> None:
+        logger.critical('reward_router starts %s', event)
         if not event.title:
             return
         sender_service = typing.cast(
@@ -93,7 +95,6 @@ class RewardRouter:
         )
         obs_service = typing.cast('ObsService', ServiceProvider.get('ObsService'))
 
-        logger.critical('reward_router')
         match event.title:
             case 'flashback':
                 await usecases.FlashbackUsecase(obs_client=obs_service).execute()
@@ -121,15 +122,34 @@ async def main() -> None:
     }
     event_handler = EventHandler(handlers=handlers)
     local_events_consumer = LocalConsumer(event_handler=event_handler)
-    consumer = RabbitConsumer(
-        queue_name=settings.LOCAL_EVENTS,
-        broker=broker,
-        worker=local_events_consumer.process,
-        after_shutdown=(event_handler.kill,),
-    )
+    dlq_exchange = 'dlq'
+    queue_name = settings.LOCAL_EVENTS
+
+    async def worker_wrapper(message: FQueueMessage, msg: RabbitMessage) -> None:
+        try:
+            await local_events_consumer.process(message)
+            await msg.ack()
+        except Exception as e:  # noqa: BLE001
+            logger.warning('worker function failed with error %s', e)
+            await msg.reject()
+
+    broker.subscriber(
+        queue=RabbitQueue(
+            queue_name,
+            auto_delete=False,
+            durable=True,
+            arguments={
+                'x-dead-letter-exchange': dlq_exchange,
+                'x-dead-letter-routing-key': f'{queue_name}.dlq',
+            },
+        ),
+        ack_policy=AckPolicy.MANUAL,
+    )(worker_wrapper)
+
+    app = FastStream(broker, on_shutdown=(event_handler.kill,))
 
     try:
-        await asyncio.gather(consumer.consume(), event_handler.event_worker())
+        await asyncio.gather(app.run(sleep_time=0.01), event_handler.event_worker())
     except asyncio.CancelledError:
         logger.info('this is fine')
 
